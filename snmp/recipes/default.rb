@@ -27,6 +27,16 @@ package "snmpd" do
   action :install
 end
 
+case node[:platform]
+  when "debian","ubuntu"
+    cookbook_file "/etc/default/snmpd" do
+      mode 0644
+      owner "root"
+      group "root"
+      source "snmpd"
+    end
+end
+
 if node[:snmp][:install_utils]
   case node[:platform]
   when "centos","redhat"
@@ -42,7 +52,7 @@ service node[:snmp][:service] do
 end
 
 template "/etc/snmp/snmpd.conf" do
-  mode "0644"
+  mode 0644
   owner "root"
   group "root"
   source "snmpd.conf.erb"
