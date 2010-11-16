@@ -3,11 +3,12 @@ maintainer_email "wolfe21@marshall.edu"
 license          "Apache 2.0"
 description      "Installs/Configures snmp on redhat, centos, ubuntu, debian"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.rdoc'))
-version          "0.0.4"
+depends          "perl"
+version          "0.0.8"
 
 recipe "snmp", "Installs and configures snmpd"
 
-%w{ ubuntu debian redhat centos }.each do |os|
+%w{ ubuntu debian redhat centos fedora }.each do |os|
   supports os
 end
 
@@ -65,5 +66,11 @@ attribute "snmp/full_systemview",
 attribute "snmp/install_utils",
   :display_name => "install_utils",
   :description => "Enable installation of SNMP utilities, like snmpwalk",
+  :default => "false",
+  :required => "optional"
+
+attribute "snmp/is_dnsserver",
+  :display_name => "is_dnsserver",
+  :description => "Enable snmp_rndc_stats SNMP Extend monitor",
   :default => "false",
   :required => "optional"
