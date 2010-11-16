@@ -29,3 +29,4 @@ default[:snmp][:full_systemview] = false
 default[:snmp][:trapcommunity] = "public"
 default[:snmp][:trapsinks] = []
 default[:snmp][:install_utils] = false
+default[:snmp][:is_dnsserver] = false
