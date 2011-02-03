@@ -24,11 +24,19 @@ service "munin-node" do
   action :enable
 end
 
-munin_servers = search(:node, "role:monitoring")
+munin_servers = search(:node, "role:#{node['munin']['server_role']} AND app_environment:#{node['app_environment']}")
 
 template "/etc/munin/munin-node.conf" do
   source "munin-node.conf.erb"
   mode 0644
   variables :munin_servers => munin_servers
   notifies :restart, resources(:service => "munin-node")
+end
+
+case node[:platform]
+when "arch"
+  execute "munin-node-configure --shell | sh" do
+    not_if { Dir.entries("/etc/munin/plugins").length > 2 }
+    notifies :restart, "service[munin-node]"
+  end
 end
