@@ -28,7 +28,7 @@ these following attributes to best suit your own environment.
   - SNMP Community Trap String, default is "public".
 
 * snmp[:trapsinks]
-  - Array of trapsink hosts, and optionall Community Trap strings.
+  - Array of trapsink hosts, and optional Community Trap strings.
     This is an empty array by default.
 
 * snmp[:install_optional]
