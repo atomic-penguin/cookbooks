@@ -51,7 +51,7 @@ end
 
 if node[:snmp][:is_dnsserver]
   include_recipe "perl"
-  %w{ version Getopt::Declare } do |pm|
+  %w{ version Getopt::Declare }.each do |pm|
     cpan_module pm
   end
 
