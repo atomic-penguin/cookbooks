@@ -1,4 +1,5 @@
-= DESCRIPTION:
+DESCRIPTION
+===========
 
 Installs and configures snmpd. Optionally install SNMP utilities,
 such as snmpwalk.
@@ -6,17 +7,20 @@ such as snmpwalk.
 The SNMP multiplex (smuxpeer) line will be set for Dell OpenManage, if Dell
 manufactured hardware is detected by Ohai.
 
-= DEPENDS:
+REQUIREMENTS
+============
 
 This cookbook provides an SNMP Extend example to collect DNS RNDC statistics.
-The Extend script is written in Perl and depends on the CPAN module "version".
+The SNMP Extend script is written in Perl and depends on the CPAN module "version",
+and Getopt::Declare.
 
 There is a loose dependency recommending the "perl" cookbook.
 If you have no need for the SNMP Extend example included, remove the
 "depends perl" line from metadata.rb. Then run 'knife cookbook metadata snmp'
 before uploading to the Chef server.
 
-= ATTRIBUTES:
+ATTRIBUTES
+==========
 
 Notable overridable attributes are as follows.  It is recommended to override
 these following attributes to best suit your own environment.
@@ -28,7 +32,7 @@ these following attributes to best suit your own environment.
   - SNMP Community Trap String, default is "public".
 
 * snmp[:trapsinks]
-  - Array of trapsink hosts, and optional Community Trap strings.
+  - Array of trapsink hosts, and optionall Community Trap strings.
     This is an empty array by default.
 
 * snmp[:install_optional]
@@ -56,11 +60,13 @@ these following attributes to best suit your own environment.
   - Boolean to use the RNDC stat Extend example included.
     This defaults to "false"
 
-= USAGE:
+USAGE
+=====
 
 Here is a full example featuring all the overridable attributes.
 You can apply these override attributes in a role, or node context.
 
+```
   override_attributes "snmp" => {
     "community" => "secret",
     "full_systemview" => true,
@@ -70,13 +76,16 @@ You can apply these override attributes in a role, or node context.
     "syslocationVirtual" => "Cloud - Virtual Pool",
     "syscontact" => "sysadmin@example.com"
   }
+```
 
-= ACKNOWLEDGEMENTS
+ACKNOWLEDGEMENTS
+================
 
 Thanks to Sami Haahtinen <zanaga> on Freenode/#chef for testing,
 and feedback pertinent to the Debian/Ubuntu platforms.
 
-= AUTHOR AND LICENSE:
+AUTHOR AND LICENSE
+==================
 
 Author:: Eric G. Wolfe (<wolfe21@marshall.edu>)
 

@@ -4,11 +4,11 @@ license          "Apache 2.0"
 description      "Installs/Configures snmp on redhat, centos, ubuntu, debian"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.rdoc'))
 depends          "perl"
-version          "0.0.9"
+version          "0.1.0"
 
 recipe "snmp", "Installs and configures snmpd"
 
-%w{ ubuntu debian redhat centos fedora }.each do |os|
+%w{ ubuntu debian redhat centos scientific fedora }.each do |os|
   supports os
 end
 

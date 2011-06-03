@@ -19,7 +19,7 @@
 
 package "snmpd" do
   case node[:platform]
-  when "centos","redhat","fedora"
+  when "centos","redhat","fedora","scientific"
     package_name "net-snmp"
   when "debian","ubuntu"
     package_name "snmpd"
@@ -40,7 +40,7 @@ end
 if node[:snmp][:install_utils]
   package "net-snmp-utils" do
     case node[:platform]
-    when "centos","redhat","fedora"
+    when "centos","redhat","fedora","scientific"
       package_name "net-snmp-utils"
     when "debian","ubuntu"
       package_name "snmp"
@@ -51,7 +51,9 @@ end
 
 if node[:snmp][:is_dnsserver]
   include_recipe "perl"
-  cpan_module "version"
+  %w{ version Getopt::Declare } do |pm|
+    cpan_module pm
+  end
 
   cookbook_file "/usr/local/bin/snmp_rndc_stats.pl" do
     mode 0755
