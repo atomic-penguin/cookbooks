@@ -4,10 +4,6 @@ include Chef::Mixin::ShellOut
 
 require 'shellwords'
 
-def action blah
-  
-end
-
 action :create do
   unless exists?
     # TODO
