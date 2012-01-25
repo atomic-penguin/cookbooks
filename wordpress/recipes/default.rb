@@ -19,14 +19,14 @@
 
 include_recipe "apache2"
 include_recipe "mysql::server"
-include_recipe "apache2::mod_php5"
 include_recipe "php"
 include_recipe "php::module_mysql"
+include_recipe "apache2::mod_php5"
 
 if node.has_key?("ec2")
-  server_fqdn = node.ec2.public_hostname
+  server_fqdn = node['ec2']['public_hostname']
 else
-  server_fqdn = node.fqdn
+  server_fqdn = node['fqdn']
 end
 
 node.set['wordpress']['db']['password'] = secure_password
@@ -46,6 +46,7 @@ directory "#{node['wordpress']['dir']}" do
   group "root"
   mode "0755"
   action :create
+  recursive true
 end
 
 execute "untar-wordpress" do
@@ -55,12 +56,11 @@ execute "untar-wordpress" do
 end
 
 execute "mysql-install-wp-privileges" do
-  command "/usr/bin/mysql -u root -p#{node['mysql']['server_root_password']} < /etc/mysql/wp-grants.sql"
+  command "/usr/bin/mysql -u root -p\"#{node['mysql']['server_root_password']}\" < #{node['mysql']['conf_dir']}/wp-grants.sql"
   action :nothing
 end
 
-template "/etc/mysql/wp-grants.sql" do
-  path "/etc/mysql/wp-grants.sql"
+template "#{node['mysql']['conf_dir']}/wp-grants.sql" do
   source "grants.sql.erb"
   owner "root"
   group "root"
@@ -74,21 +74,23 @@ template "/etc/mysql/wp-grants.sql" do
 end
 
 execute "create #{node['wordpress']['db']['database']} database" do
-  command "/usr/bin/mysqladmin -u root -p#{node['mysql']['server_root_password']} create #{node['wordpress']['db']['database']}"
+  command "/usr/bin/mysqladmin -u root -p\"#{node['mysql']['server_root_password']}\" create #{node['wordpress']['db']['database']}"
   not_if do
     require 'mysql'
     m = Mysql.new("localhost", "root", node['mysql']['server_root_password'])
     m.list_dbs.include?(node['wordpress']['db']['database'])
   end
-  notifies :create, "ruby_block[save node data]", :immediately
+  notifies :create, "ruby_block[save node data]", :immediately unless Chef::Config[:solo]
 end
 
 # save node data after writing the MYSQL root password, so that a failed chef-client run that gets this far doesn't cause an unknown password to get applied to the box without being saved in the node data.
-ruby_block "save node data" do
-  block do
-    node.save
+unless Chef::Config[:solo]
+  ruby_block "save node data" do
+    block do
+      node.save
+    end
+    action :create
   end
-  action :create
 end
 
 log "Navigate to 'http://#{server_fqdn}/wp-admin/install.php' to complete wordpress installation" do
@@ -120,5 +122,5 @@ web_app "wordpress" do
   template "wordpress.conf.erb"
   docroot "#{node['wordpress']['dir']}"
   server_name server_fqdn
-  server_aliases node.fqdn
+  server_aliases node['wordpress']['server_aliases']
 end

@@ -48,7 +48,7 @@ if platform?(%w{debian ubuntu})
     notifies :run, resources(:execute => "preseed mysql-server"), :immediately
   end
 
-  template "/etc/mysql/debian.cnf" do
+  template "#{node['mysql']['conf_dir']}/debian.cnf" do
     source "debian.cnf.erb"
     owner "root"
     group "root"
@@ -62,7 +62,7 @@ package "mysql-server" do
 end
 
 service "mysql" do
-  service_name value_for_platform([ "centos", "redhat", "suse", "fedora" ] => {"default" => "mysqld"}, "default" => "mysql")
+  service_name value_for_platform([ "centos", "redhat", "suse", "fedora", "scientific", "amazon" ] => {"default" => "mysqld"}, "default" => "mysql")
   if (platform?("ubuntu") && node.platform_version.to_f >= 10.04)
     restart_command "restart mysql"
     stop_command "stop mysql"
@@ -72,12 +72,22 @@ service "mysql" do
   action :nothing
 end
 
-template value_for_platform([ "centos", "redhat", "suse" , "fedora" ] => {"default" => "/etc/my.cnf"}, "default" => "/etc/mysql/my.cnf") do
+skip_federated = case node['platform']
+                 when 'fedora', 'ubuntu', 'amazon'
+                   true
+                 when 'centos', 'redhat', 'scientific'
+                   node['platform_version'].to_f < 6.0
+                 else
+                   false
+                 end
+
+template "#{node['mysql']['conf_dir']}/my.cnf" do
   source "my.cnf.erb"
   owner "root"
   group "root"
   mode "0644"
   notifies :restart, resources(:service => "mysql"), :immediately
+  variables :skip_federated => skip_federated
 end
 
 unless Chef::Config[:solo]
@@ -101,19 +111,13 @@ unless platform?(%w{debian ubuntu})
 
 end
 
-grants_path = value_for_platform(
-  ["centos", "redhat", "suse", "fedora" ] => {
-    "default" => "/etc/mysql_grants.sql"
-  },
-  "default" => "/etc/mysql/grants.sql"
-)
+grants_path = "#{node['mysql']['conf_dir']}/mysql_grants.sql"
 
 begin
-  t = resources("template[/etc/mysql/grants.sql]")
+  t = resources("template[#{grants_path}]")
 rescue
   Chef::Log.info("Could not find previously defined grants.sql resource")
-  t = template "/etc/mysql/grants.sql" do
-    path grants_path
+  t = template grants_path do
     source "grants.sql.erb"
     owner "root"
     group "root"
@@ -123,7 +127,7 @@ rescue
 end
 
 execute "mysql-install-privileges" do
-  command "/usr/bin/mysql -u root #{node['mysql']['server_root_password'].empty? ? '' : '-p' }#{node['mysql']['server_root_password']} < #{grants_path}"
+  command "/usr/bin/mysql -u root #{node['mysql']['server_root_password'].empty? ? '' : '-p' }\"#{node['mysql']['server_root_password']}\" < #{grants_path}"
   action :nothing
-  subscribes :run, resources("template[/etc/mysql/grants.sql]"), :immediately
+  subscribes :run, resources("template[#{grants_path}]"), :immediately
 end

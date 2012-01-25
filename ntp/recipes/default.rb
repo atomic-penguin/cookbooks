@@ -32,10 +32,25 @@ service node[:ntp][:service] do
   action :start
 end
 
+# ntpstats dir doesn't exist on RHEL/CentOS
+# It'd be better to not make assumptions about the target platform
+%w{ /var/lib/ntp /var/log/ntpstats }.each do |ntpdir|
+  directory ntpdir do
+    owner "ntp"
+    group "ntp"
+    mode 0755
+  end
+end
+
 template "/etc/ntp.conf" do
   source "ntp.conf.erb"
   owner "root"
   group "root"
   mode 0644
-  notifies :restart, resources(:service => node[:ntp][:service])
+  notifies :restart, "service[ntp]"
+end
+
+service "ntp" do
+  service_name node[:ntp][:service]
+  action [:enable, :start]
 end
