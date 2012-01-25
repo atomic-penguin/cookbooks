@@ -4,7 +4,7 @@ license          "Apache 2.0"
 description      "Installs/Configures snmp on redhat, centos, ubuntu, debian"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 depends          "perl"
-version          "0.1.2"
+version          "0.2.0"
 
 recipe "snmp", "Installs and configures snmpd"
 
@@ -20,6 +20,16 @@ attribute "snmp",
 attribute "snmp/service",
   :display_name => "SNMPD",
   :description => "SNMP Daemon name",
+  :calculated => true
+
+attribute "snmp/packages",
+  :display_name => "SNMP packages",
+  :description => "SNMP packages name",
+  :calculated => true
+
+attribute "snmp/cookbook_files",
+  :display_name => "SNMP cookbook files",
+  :description => "SNMP cookbook files for Debian/Ubuntu",
   :calculated => true
 
 attribute "snmp/community",

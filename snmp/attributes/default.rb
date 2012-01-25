@@ -17,16 +17,30 @@
 # limitations under the License.
 #
 
-case node[:platform] when "redhat","centos","debian","ubuntu"
-  set[:snmp][:service] = "snmpd"  
+case node['platform']
+  when "redhat","centos","fedora","scientific"
+    set['snmp']['packages'] = ["net-snmp", "net-snmp-utils"]
+    set['snmp']['cookbook_files'] = Array.new
+  when "debian","ubuntu"
+    set['snmp']['packages'] = ["snmp"]
+    set['snmp']['cookbook_files'] = ["snmpd"]
+  else
+    set['snmp']['packages'] = ["net-snmp", "net-snmp-utils"]
+    set['snmp']['cookbook_files'] = Array.new  
 end
 
-default[:snmp][:community] = "public"
-default[:snmp][:syslocationVirtual] = "Virtual Server"
-default[:snmp][:syslocationPhysical] = "Server Room"
-default[:snmp][:syscontact] = "Root <root@localhost>"
-default[:snmp][:full_systemview] = false
-default[:snmp][:trapcommunity] = "public"
-default[:snmp][:trapsinks] = []
-default[:snmp][:install_utils] = false
-default[:snmp][:is_dnsserver] = false
+default['snmp']['service'] = "snmpd"
+
+case node['platform'] when "redhat","centos","debian","ubuntu"
+  set['snmp']['service'] = "snmpd"
+end
+
+
+default['snmp']['community'] = "public"
+default['snmp']['syslocationVirtual'] = "Virtual Server"
+default['snmp']['syslocationPhysical'] = "Server Room"
+default['snmp']['syscontact'] = "Root <root@localhost>"
+default['snmp']['full_systemview'] = false
+default['snmp']['trapcommunity'] = "public"
+default['snmp']['trapsinks'] = Array.new
+default['snmp']['is_dnsserver'] = false

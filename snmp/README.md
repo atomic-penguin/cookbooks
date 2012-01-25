@@ -1,8 +1,7 @@
 DESCRIPTION
 ===========
 
-Installs and configures snmpd. Optionally install SNMP utilities,
-such as snmpwalk.
+Installs and configures snmpd.
 
 The SNMP multiplex (smuxpeer) line will be set for Dell OpenManage, if Dell
 manufactured hardware is detected by Ohai.
@@ -15,9 +14,19 @@ The SNMP Extend script is written in Perl and depends on the CPAN module "versio
 and Getopt::Declare.
 
 There is a loose dependency recommending the "perl" cookbook.
-If you have no need for the SNMP Extend example included, remove the
+If you have no need for the SNMP Extend example included, you may remove the
 "depends perl" line from metadata.rb. Then run 'knife cookbook metadata snmp'
 before uploading to the Chef server.
+
+RECIPES
+=======
+
+* snmp::default
+  - Installs and configures SNMP
+
+* snmp::extendbind
+  - Example recipe to deploy a Perl based extend script to collect stats
+    from a BIND 9 server.
 
 ATTRIBUTES
 ==========
@@ -34,9 +43,6 @@ these following attributes to best suit your own environment.
 * snmp[:trapsinks]
   - Array of trapsink hosts, and optionall Community Trap strings.
     This is an empty array by default.
-
-* snmp[:install_optional]
-  - Boolean to install optional SNMP utilities, default is false.
 
 * snmp[:syscontact]
   - String to set a name, and e-mail address for systems.
@@ -56,10 +62,6 @@ these following attributes to best suit your own environment.
      snmpwalk.  However, if you're running SNMP Network Management System,
      you'll want to override this as "true" on your systems.
 
-* snmp[:is_dnsserver]
-  - Boolean to use the RNDC stat Extend example included.
-    This defaults to "false"
-
 USAGE
 =====
 
@@ -70,7 +72,6 @@ You can apply these override attributes in a role, or node context.
   override_attributes "snmp" => {
     "community" => "secret",
     "full_systemview" => true,
-    "install_optional" => true,
     "trapsinks" => [ "zenoss.example.com", "nagios.example.com" ],
     "syslocationPhysical" => "Server Room",
     "syslocationVirtual" => "Cloud - Virtual Pool",
@@ -89,7 +90,7 @@ AUTHOR AND LICENSE
 
 Author:: Eric G. Wolfe (<wolfe21@marshall.edu>)
 
-Copyright 2010
+Copyright 2010-2012
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

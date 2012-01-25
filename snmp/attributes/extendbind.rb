@@ -1,8 +1,8 @@
 #
-# Cookbook Name:: snmp
-# Recipe:: default
+# Cookbook Name:: snmp 
+# Attributes:: extendbind 
 #
-# Copyright 2010, Eric G. Wolfe
+# Copyright 2012, Eric G. Wolfe 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,27 +17,17 @@
 # limitations under the License.
 #
 
-node['snmp']['packages'].each do |snmppkg|
-  package snmppkg
-end
-
-unless ! node['snmp']['cookbook_files'].empty?
-  node['snmp']['cookbook_files'].each do |snmpfile|
-    cookbook_file snmpfile do
-      mode 0644
-      owner "root"
-      group "root"
-    end
+case node['platform']
+when "redhat","centos","scientific"
+  case node['platform_version'].to_i
+  when 5
+    # BIND <= 9.3 stats
+    default['snmp']['rndc_stats_script'] = "snmp_rndc_stats.pl"
+  when 6
+    # BIND >= 9.7 stats
+    default['snmp']['rndc_stats_script'] = "snmp_rndc_stats_v97.pl"
   end
-end
-
-service node['snmp']['service'] do
-  action [ :start, :enable ]
-end
-
-template "/etc/snmp/snmpd.conf" do
-  mode 0644
-  owner "root"
-  group "root"
-  notifies :restart, resources(:service => node['snmp']['service'])
+else
+  # Else assume we're using BIND 9.7 or newer
+  default['snmp']['rndc_stats_script'] = "snmp_rndc_stats_v97.pl"
 end
