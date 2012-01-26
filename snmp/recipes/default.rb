@@ -21,7 +21,7 @@ node['snmp']['packages'].each do |snmppkg|
   package snmppkg
 end
 
-unless ! node['snmp']['cookbook_files'].empty?
+if not node['snmp']['cookbook_files'].empty?
   node['snmp']['cookbook_files'].each do |snmpfile|
     cookbook_file snmpfile do
       mode 0644
