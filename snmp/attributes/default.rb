@@ -29,12 +29,9 @@ case node['platform']
     set['snmp']['cookbook_files'] = Array.new  
 end
 
+# Same on supported platforms:
+# redhat, centos, fedora, scientific, debian, ubuntu
 default['snmp']['service'] = "snmpd"
-
-case node['platform'] when "redhat","centos","debian","ubuntu"
-  set['snmp']['service'] = "snmpd"
-end
-
 
 default['snmp']['community'] = "public"
 default['snmp']['syslocationVirtual'] = "Virtual Server"
